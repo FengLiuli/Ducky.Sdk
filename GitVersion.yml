@@ -1,6 +1,6 @@
-mode: Mainline
 branches:
   main:
+    mode: ContinuousDeployment
     regex: ^main$
     label: ""
     increment: Patch
