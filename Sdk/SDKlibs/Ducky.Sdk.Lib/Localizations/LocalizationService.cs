@@ -192,7 +192,7 @@ internal sealed class LocalizationService
         {
             SystemLanguage.Chinese => "zh",
             SystemLanguage.ChineseSimplified => "zh",
-            SystemLanguage.ChineseTraditional => "zh-Hant",
+            SystemLanguage.ChineseTraditional => "zh-hant",
             SystemLanguage.English => "en",
             SystemLanguage.French => "fr",
             SystemLanguage.German => "de",
