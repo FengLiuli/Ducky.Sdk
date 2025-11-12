@@ -4,36 +4,50 @@ using System.Collections.Generic;
 using System.Linq;
 using Duckov.Buffs;
 using Duckov.Utilities;
+using Ducky.Sdk.GameApis;
 using Ducky.Sdk.Logging;
 using Ducky.Sdk.Options;
 using Ducky.Sdk.Utils;
 using UnityEngine;
 
-namespace Ducky.Sdk.GameApis;
+namespace Ducky.Sdk.Contracts;
 
-public class BuffRegistrator : MonoBehaviour
+public class BuffsContract : MonoBehaviour
 {
     private const int BuffIdRegionSize = 10_000;
     private const int StartingBuffId = 1500000;
     private const string BuffRegionOptionKey = "BuffIdRegion";
-    private static readonly BuffRegistrator _instance;
 
-    static BuffRegistrator()
+    static BuffsContract()
     {
-        var go = new GameObject("BuffRegistrator");
-        _instance = go.AddComponent<BuffRegistrator>();
+        var modId = Helper.GetModId();
+        Log.Info($"Initializing BuffsContract for mod {modId}.");
+        var objName = $"{modId}_BuffsContractHolder";
+        var existing = GameObject.Find(objName);
+        if (existing != null)
+        {
+            Instance = existing.GetComponent<BuffsContract>();
+            if (Instance != null)
+            {
+                Log.Info($"BuffsContract instance for mod {modId} already exists.");
+                return;
+            }
+        }
+
+        var go = new GameObject(objName);
+        Instance = go.AddComponent<BuffsContract>();
         DontDestroyOnLoad(go);
     }
 
-    public static BuffRegistrator Instance => _instance;
+    public static BuffsContract Instance { get; }
 
-    private static readonly ConcurrentDictionary<Type, Buff> _buffs = new();
+    private static readonly ConcurrentDictionary<Type, Buff> Buffs = new();
     private static int _maxBuffId = 1000456;
 
     public int RegisterBuff<T>(Action<T> configure) where T : Buff
     {
         var buffType = typeof(T);
-        if (_buffs.TryGetValue(buffType, out var old))
+        if (Buffs.TryGetValue(buffType, out var old))
         {
             Debug.LogWarning($"Buff of type {buffType.FullName} is already registered.");
             return old.ID;
@@ -45,7 +59,7 @@ public class BuffRegistrator : MonoBehaviour
         buff.ID = _maxBuffId++;
         configure(buff);
 
-        _buffs[buffType] = buff;
+        Buffs[buffType] = buff;
         var allBuffs = GameplayDataSettings.Buffs.GetAllBuffs();
         allBuffs.Add(buff);
         Log.Info($"Registered buff of type {buffType.FullName} with ID {buff.ID}.");
