@@ -90,7 +90,7 @@
   </ItemGroup>
 
   <!-- Dynamically find and add assembly references from ManagedDirectory -->
-  <Target Name="AddDuckyManagedReferences" BeforeTargets="BeforeResolveReferences"
+  <Target Name="AddDuckyManagedReferences" BeforeTargets="ResolveAssemblyReferences;BeforeResolveReferences"
           DependsOnTargets="InitializeDuckySdkProperties"
           Condition=" '$(ManagedDirectory)' != '' AND Exists('$(ManagedDirectory)') ">
 
